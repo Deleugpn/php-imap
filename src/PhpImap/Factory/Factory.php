@@ -1,7 +1,6 @@
 <?php
 
-namespace PhpImap;
-
+namespace PhpImap\Factory;
 
 use PhpImap\Contract\EmailFactoryInterface;
 use PhpImap\Contract\EmailInterface;
