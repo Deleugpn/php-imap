@@ -2,11 +2,11 @@
 
 namespace PhpImap\Factory;
 
-use PhpImap\Contract\EmailFactoryInterface;
+use PhpImap\Contract\ImapFactoryInterface;
 use PhpImap\Contract\EmailInterface;
 use PhpImap\Contract\MailBoxInterface;
 
-class EmailFactory implements EmailFactoryInterface {
+class ImapFactory implements ImapFactoryInterface {
 
     /**
      * @var MailBoxInterface
