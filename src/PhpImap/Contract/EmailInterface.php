@@ -43,4 +43,6 @@ interface EmailInterface {
     public function addCc($index, $value);
 
     public function addBcc($index, $value);
+
+    public function clean();
 }

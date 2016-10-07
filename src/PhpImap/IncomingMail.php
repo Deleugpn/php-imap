@@ -295,6 +295,12 @@ class IncomingMail implements EmailInterface {
         $this->bcc[$index] = $value;
     }
 
+    public function clean() {
+        foreach ($this as $attr) {
+            unset($attr);
+        }
+    }
+
 
 }
 
