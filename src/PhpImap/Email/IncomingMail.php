@@ -276,10 +276,14 @@ class IncomingMail implements EmailInterface {
     }
 
     public function concatTextPlain($text) {
+        if (!isset($this->textPlain))
+            $this->textPlain = '';
         $this->textPlain .= $text;
     }
 
     public function concatTextHtml($text) {
+        if (!isset($this->textHtml))
+            $this->textHtml = '';
         $this->textHtml .= $text;
     }
 
