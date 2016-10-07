@@ -27,7 +27,7 @@ class EmailFactory implements EmailFactoryInterface {
      * @param bool $markAsSeen
      * @return EmailInterface
      */
-    public static function getEmail(MailBoxInterface $mailBoxInterface, EmailInterface $emailInterface, $mailId, $markAsSeen = true) {
+    public function getEmail(MailBoxInterface $mailBoxInterface, EmailInterface $emailInterface, $mailId, $markAsSeen = true) {
         $emailInterface->clean();
 
         $headersRaw = imap_fetchheader($mailBoxInterface->getImapStream(), $mailId, FT_UID);

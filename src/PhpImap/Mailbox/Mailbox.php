@@ -1,4 +1,4 @@
-<?php namespace PhpImap;
+<?php namespace PhpImap\Mailbox;
 
 use PhpImap\Contract\EmailInterface;
 use PhpImap\Contract\MailBoxInterface;
@@ -164,6 +164,8 @@ class Mailbox implements MailBoxInterface {
     protected function disconnect() {
         $imapStream = $this->getImapStream(false);
         if ($imapStream && is_resource($imapStream)) {
+            imap_errors();
+            imap_alerts();
             imap_close($imapStream, $this->expungeOnDisconnect ? CL_EXPUNGE : 0);
         }
     }

@@ -1,4 +1,4 @@
-<?php namespace PhpImap;
+<?php namespace PhpImap\Email;
 
 use PhpImap\Contract\EmailInterface;
 
