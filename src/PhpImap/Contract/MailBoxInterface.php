@@ -67,4 +67,10 @@ interface MailBoxInterface {
     public function isUrlEncoded($string);
 
     public function settings($imapPath, $login, $password, $attachmentsDir = null, $serverEncoding = 'UTF-8');
+
+    public function decodeMimeStr($string, $charset = 'utf-8');
+
+    public function getServerEncoding();
+
+    public function initMailPart(EmailInterface $emailInterface, $partStructure, $param, $markAsSeen = true);
 }

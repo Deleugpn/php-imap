@@ -1,5 +1,6 @@
 <?php namespace PhpImap;
 
+use PhpImap\Contract\EmailInterface;
 use PhpImap\Contract\MailBoxInterface;
 use stdClass;
 
@@ -80,6 +81,12 @@ class Mailbox implements MailBoxInterface {
         $this->serverEncoding = $serverEncoding;
     }
 
+    /**
+     * @return mixed
+     */
+    public function getServerEncoding() {
+        return $this->serverEncoding;
+    }
 
     public function connect() {
         if ($this->attachmentsDir) {
@@ -500,72 +507,15 @@ class Mailbox implements MailBoxInterface {
      * @return IncomingMail
      */
     public function getMail($mailId, $markAsSeen = true) {
-        $headersRaw = imap_fetchheader($this->getImapStream(), $mailId, FT_UID);
-        $head = imap_rfc822_parse_headers($headersRaw);
 
-        $mail = new IncomingMail();
-        $mail->headersRaw = $headersRaw;
-        $mail->headers = $head;
-        $mail->id = $mailId;
-        $mail->date = date('Y-m-d H:i:s', isset($head->date) ? strtotime(preg_replace('/\(.*?\)/', '', $head->date)) : time());
-        $mail->subject = isset($head->subject) ? $this->decodeMimeStr($head->subject, $this->serverEncoding) : null;
-        $mail->fromName = isset($head->from[0]->personal) ? $this->decodeMimeStr($head->from[0]->personal, $this->serverEncoding) : null;
-        $mail->fromAddress = strtolower($head->from[0]->mailbox . '@' . $head->from[0]->host);
-
-        if (isset($head->to)) {
-            $toStrings = array();
-            foreach ($head->to as $to) {
-                if (!empty($to->mailbox) && !empty($to->host)) {
-                    $toEmail = strtolower($to->mailbox . '@' . $to->host);
-                    $toName = isset($to->personal) ? $this->decodeMimeStr($to->personal, $this->serverEncoding) : null;
-                    $toStrings[] = $toName ? "$toName <$toEmail>" : $toEmail;
-                    $mail->to[$toEmail] = $toName;
-                }
-            }
-            $mail->toString = implode(', ', $toStrings);
-        }
-
-        if (isset($head->cc)) {
-            foreach ($head->cc as $cc) {
-                $mail->cc[strtolower($cc->mailbox . '@' . $cc->host)] = isset($cc->personal) ? $this->decodeMimeStr($cc->personal, $this->serverEncoding) : null;
-            }
-        }
-
-        if (isset($head->bcc)) {
-            foreach ($head->bcc as $bcc) {
-                $mail->bcc[strtolower($bcc->mailbox . '@' . $bcc->host)] = isset($bcc->personal) ? $this->decodeMimeStr($bcc->personal, $this->serverEncoding) : null;
-            }
-        }
-
-        if (isset($head->reply_to)) {
-            foreach ($head->reply_to as $replyTo) {
-                $mail->replyTo[strtolower($replyTo->mailbox . '@' . $replyTo->host)] = isset($replyTo->personal) ? $this->decodeMimeStr($replyTo->personal, $this->serverEncoding) : null;
-            }
-        }
-
-        if (isset($head->message_id)) {
-            $mail->messageId = $head->message_id;
-        }
-
-        $mailStructure = imap_fetchstructure($this->getImapStream(), $mailId, FT_UID);
-
-        if (empty($mailStructure->parts)) {
-            $this->initMailPart($mail, $mailStructure, 0, $markAsSeen);
-        } else {
-            foreach ($mailStructure->parts as $partNum => $partStructure) {
-                $this->initMailPart($mail, $partStructure, $partNum + 1, $markAsSeen);
-            }
-        }
-
-        return $mail;
     }
 
-    protected function initMailPart(IncomingMail $mail, $partStructure, $partNum, $markAsSeen = true) {
+    public function initMailPart(EmailInterface $mail, $partStructure, $partNum, $markAsSeen = true) {
         $options = FT_UID;
         if (!$markAsSeen) {
             $options |= FT_PEEK;
         }
-        $data = $partNum ? imap_fetchbody($this->getImapStream(), $mail->id, $partNum, $options) : imap_body($this->getImapStream(), $mail->id, $options);
+        $data = $partNum ? imap_fetchbody($this->getImapStream(), $mail->getId(), $partNum, $options) : imap_body($this->getImapStream(), $mail->getId(), $options);
 
         if ($partStructure->encoding == 1) {
             $data = imap_utf8($data);
@@ -624,7 +574,7 @@ class Mailbox implements MailBoxInterface {
                     '/_+/' => '_',
                     '/(^_)|(_$)/' => '',
                 );
-                $fileSysName = preg_replace('~[\\\\/]~', '', $mail->id . '_' . $attachmentId . '_' . preg_replace(array_keys($replace), $replace, $fileName));
+                $fileSysName = preg_replace('~[\\\\/]~', '', $mail->getId() . '_' . $attachmentId . '_' . preg_replace(array_keys($replace), $replace, $fileName));
                 $attachment->filePath = $this->attachmentsDir . DIRECTORY_SEPARATOR . $fileSysName;
 
                 if (strlen($attachment->filePath) > 255) {
@@ -641,12 +591,12 @@ class Mailbox implements MailBoxInterface {
             }
             if ($partStructure->type == 0 && $data) {
                 if (strtolower($partStructure->subtype) == 'plain') {
-                    $mail->textPlain .= $data;
+                    $mail->concatTextPlain($data);
                 } else {
-                    $mail->textHtml .= $data;
+                    $mail->concatTextHtml($data);
                 }
             } elseif ($partStructure->type == 2 && $data) {
-                $mail->textPlain .= trim($data);
+                $mail->concatTextPlain(trim($data));
             }
         }
         if (!empty($partStructure->parts)) {
@@ -660,7 +610,7 @@ class Mailbox implements MailBoxInterface {
         }
     }
 
-    protected function decodeMimeStr($string, $charset = 'utf-8') {
+    public function decodeMimeStr($string, $charset = 'utf-8') {
         $newString = '';
         $elements = imap_mime_header_decode($string);
         for ($i = 0; $i < count($elements); $i++) {
