@@ -17,7 +17,8 @@ class ImapFactory implements ImapFactoryInterface {
      * @return EmailInterface
      */
     public function parseEmailFromInbox(InboxInterface $mailBoxInterface, EmailInterface $emailInterface, $mailId, $markAsSeen = true) {
-        $emailInterface->clean();
+        $class = get_class($emailInterface);
+        $emailInterface = new $class;
 
         $headersRaw = imap_fetchheader($mailBoxInterface->getImapStream(), $mailId, FT_UID);
         $head = imap_rfc822_parse_headers($headersRaw);
