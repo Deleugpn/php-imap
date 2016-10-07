@@ -9,16 +9,6 @@ use PhpImap\Contract\MailBoxInterface;
 class ImapFactory implements ImapFactoryInterface {
 
     /**
-     * @var MailBoxInterface
-     */
-    protected $mailBoxInterface;
-
-    /**
-     * @var EmailInterface
-     */
-    protected $emailInterface;
-
-    /**
      * EmailFactory constructor.
      * @param MailBoxInterface $mailBoxInterface
      * @param EmailInterface $emailInterface
@@ -26,7 +16,7 @@ class ImapFactory implements ImapFactoryInterface {
      * @param bool $markAsSeen
      * @return EmailInterface
      */
-    public function getEmail(MailBoxInterface $mailBoxInterface, EmailInterface $emailInterface, $mailId, $markAsSeen = true) {
+    public function parseEmailFromInbox(MailBoxInterface $mailBoxInterface, EmailInterface $emailInterface, $mailId, $markAsSeen = true) {
         $emailInterface->clean();
 
         $headersRaw = imap_fetchheader($mailBoxInterface->getImapStream(), $mailId, FT_UID);
