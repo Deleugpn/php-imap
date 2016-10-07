@@ -275,10 +275,6 @@ class IncomingMail implements EmailInterface {
         $this->textHtml = $textHtml;
     }
 
-    public function setPlainTo($plain) {
-        $this->textPlain = $plain;
-    }
-
     public function concatTextPlain($text) {
         $this->textPlain .= $text;
     }
@@ -296,9 +292,13 @@ class IncomingMail implements EmailInterface {
     }
 
     public function clean() {
-        foreach ($this as $attr) {
-            unset($attr);
+        foreach ($this as $index => $attr) {
+            unset($this->$index);
         }
+    }
+
+    public function addReplyTo($index, $value) {
+        $this->replyTo[$index] = $value;
     }
 
 

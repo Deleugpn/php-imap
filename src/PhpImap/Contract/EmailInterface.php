@@ -30,8 +30,6 @@ interface EmailInterface {
 
     public function appendTo($toEmail, $toName);
 
-    public function setPlainTo($plain);
-
     public function setMessageId($messageId);
 
     public function getId();
@@ -45,4 +43,8 @@ interface EmailInterface {
     public function addBcc($index, $value);
 
     public function clean();
+
+    public function addReplyTo($index, $value);
+
+    public function setToString($strings);
 }

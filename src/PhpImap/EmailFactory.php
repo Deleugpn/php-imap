@@ -51,7 +51,7 @@ class EmailFactory implements EmailFactoryInterface {
                     $emailInterface->appendTo($toEmail, $toName);
                 }
             }
-            $emailInterface->setPlainTo(implode(', ', $toStrings));
+            $emailInterface->setToString(implode(', ', $toStrings));
         }
 
         if (isset($head->cc)) {
@@ -68,7 +68,7 @@ class EmailFactory implements EmailFactoryInterface {
 
         if (isset($head->reply_to)) {
             foreach ($head->reply_to as $replyTo) {
-                $emailInterface->replyTo[strtolower($replyTo->mailbox . '@' . $replyTo->host)] = isset($replyTo->personal) ? $mailBoxInterface->decodeMimeStr($replyTo->personal, $mailBoxInterface->getServerEncoding()) : null;
+                $emailInterface->addReplyTo(strtolower($replyTo->mailbox . '@' . $replyTo->host), isset($replyTo->personal) ? $mailBoxInterface->decodeMimeStr($replyTo->personal, $mailBoxInterface->getServerEncoding()) : null);
             }
         }
 
