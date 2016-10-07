@@ -1,14 +1,16 @@
-<?php namespace PhpImap\Mailbox;
+<?php namespace PhpImap\Inbox;
 
 use PhpImap\Contract\EmailInterface;
-use PhpImap\Contract\MailBoxInterface;
+use PhpImap\Contract\InboxInterface;
+use PhpImap\Email\IncomingMail;
+use PhpImap\Email\IncomingMailAttachment;
 use stdClass;
 
 /**
  * @see https://github.com/barbushin/php-imap
  * @author Barbushin Sergey http://linkedin.com/in/barbushin
  */
-class Mailbox implements MailBoxInterface {
+class Inbox implements InboxInterface {
 
     protected $imapPath;
     protected $imapLogin;
@@ -255,6 +257,8 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Save mail body.
+     * @param int $mailId
+     * @param string $filename
      * @return bool
      */
     public function saveMail($mailId, $filename = 'email.eml') {
@@ -263,6 +267,7 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Marks mails listed in mailId for deletion.
+     * @param $mailId
      * @return bool
      */
     public function deleteMail($mailId) {
@@ -271,6 +276,8 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Moves mails listed in mailId into new mailbox
+     * @param int $mailId
+     * @param $mailBox
      * @return bool
      */
     public function moveMail($mailId, $mailBox) {
@@ -279,6 +286,8 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Copys mails listed in mailId into new mailbox
+     * @param int $mailId
+     * @param $mailBox
      * @return bool
      */
     public function copyMail($mailId, $mailBox) {
@@ -295,6 +304,7 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Add the flag \Seen to a mail.
+     * @param int $mailId
      * @return bool
      */
     public function markMailAsRead($mailId) {
@@ -303,6 +313,7 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Remove the flag \Seen from a mail.
+     * @param int $mailId
      * @return bool
      */
     public function markMailAsUnread($mailId) {
@@ -311,6 +322,7 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Add the flag \Flagged to a mail.
+     * @param int $mailId
      * @return bool
      */
     public function markMailAsImportant($mailId) {
@@ -319,6 +331,7 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Add the flag \Seen to a mails.
+     * @param array $mailId
      * @return bool
      */
     public function markMailsAsRead(array $mailId) {
@@ -327,6 +340,7 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Remove the flag \Seen from some mails.
+     * @param array $mailId
      * @return bool
      */
     public function markMailsAsUnread(array $mailId) {
@@ -335,6 +349,7 @@ class Mailbox implements MailBoxInterface {
 
     /**
      * Add the flag \Flagged to some mails.
+     * @param array $mailId
      * @return bool
      */
     public function markMailsAsImportant(array $mailId) {

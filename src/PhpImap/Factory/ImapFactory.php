@@ -4,19 +4,19 @@ namespace PhpImap\Factory;
 
 use PhpImap\Contract\ImapFactoryInterface;
 use PhpImap\Contract\EmailInterface;
-use PhpImap\Contract\MailBoxInterface;
+use PhpImap\Contract\InboxInterface;
 
 class ImapFactory implements ImapFactoryInterface {
 
     /**
      * EmailFactory constructor.
-     * @param MailBoxInterface $mailBoxInterface
+     * @param InboxInterface $mailBoxInterface
      * @param EmailInterface $emailInterface
      * @param $mailId
      * @param bool $markAsSeen
      * @return EmailInterface
      */
-    public function parseEmailFromInbox(MailBoxInterface $mailBoxInterface, EmailInterface $emailInterface, $mailId, $markAsSeen = true) {
+    public function parseEmailFromInbox(InboxInterface $mailBoxInterface, EmailInterface $emailInterface, $mailId, $markAsSeen = true) {
         $emailInterface->clean();
 
         $headersRaw = imap_fetchheader($mailBoxInterface->getImapStream(), $mailId, FT_UID);

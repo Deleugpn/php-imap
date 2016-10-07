@@ -2,7 +2,7 @@
 
 namespace PhpImap\Contract;
 
-interface MailBoxInterface {
+interface InboxInterface {
 
     public function connect();
 

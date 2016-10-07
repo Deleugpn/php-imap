@@ -2,7 +2,7 @@
 
 namespace PhpImap\Contract;
 
-use PhpImap\IncomingMailAttachment;
+use PhpImap\Email\IncomingMailAttachment;
 
 interface EmailInterface {
 
