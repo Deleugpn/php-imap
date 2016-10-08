@@ -47,4 +47,12 @@ interface EmailInterface {
     public function addReplyTo($index, $value);
 
     public function setToString($strings);
+
+    public function getFromAddress();
+
+    public function getSubject();
+
+    public function getDate();
+
+    public function getBody();
 }

@@ -296,14 +296,16 @@ class IncomingMail implements EmailInterface {
     }
 
     public function clean() {
-        foreach ($this as $index => $attr) {
-            unset($this->$index);
-        }
+        // @TODO figure out a way to implement this.
     }
 
     public function addReplyTo($index, $value) {
         $this->replyTo[$index] = $value;
     }
 
-
+    public function getBody() {
+        if (is_null($this->textHtml))
+            return $this->textPlain;
+        return $this->textHtml;
+    }
 }
