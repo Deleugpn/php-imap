@@ -1,7 +1,7 @@
 <?php namespace PhpImap\Inbox;
 
-use PhpImap\Contract\EmailInterface;
-use PhpImap\Contract\InboxInterface;
+use PhpImap\Contract\Email;
+use PhpImap\Contract\Inbox as InboxContract;
 use PhpImap\Email\IncomingMail;
 use PhpImap\Email\IncomingMailAttachment;
 use stdClass;
@@ -10,7 +10,7 @@ use stdClass;
  * @see https://github.com/barbushin/php-imap
  * @author Barbushin Sergey http://linkedin.com/in/barbushin
  */
-class Inbox implements InboxInterface {
+class Inbox implements InboxContract {
 
     protected $imapPath;
     protected $imapLogin;
@@ -527,7 +527,7 @@ class Inbox implements InboxInterface {
 
     }
 
-    public function initMailPart(EmailInterface $mail, $partStructure, $partNum, $markAsSeen = true) {
+    public function initMailPart(Email $mail, $partStructure, $partNum, $markAsSeen = true) {
         $options = FT_UID;
         if (!$markAsSeen) {
             $options |= FT_PEEK;

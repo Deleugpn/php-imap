@@ -2,7 +2,7 @@
 
 namespace PhpImap\Contract;
 
-interface InboxInterface {
+interface Inbox {
 
     public function connect();
 
@@ -72,5 +72,5 @@ interface InboxInterface {
 
     public function getServerEncoding();
 
-    public function initMailPart(EmailInterface $emailInterface, $partStructure, $param, $markAsSeen = true);
+    public function initMailPart(Email $emailInterface, $partStructure, $param, $markAsSeen = true);
 }

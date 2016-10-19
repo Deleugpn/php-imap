@@ -1,12 +1,13 @@
 <?php namespace PhpImap\Email;
 
-use PhpImap\Contract\EmailInterface;
+use PhpImap\Contract\Email;
+use PhpImap\Factory\ResponseFactory;
 
 /**
  * @see https://github.com/barbushin/php-imap
  * @author Barbushin Sergey http://linkedin.com/in/barbushin
  */
-class IncomingMail implements EmailInterface {
+class IncomingMail implements Email {
 
     public $id;
     public $date;
@@ -307,5 +308,13 @@ class IncomingMail implements EmailInterface {
         if (is_null($this->textHtml))
             return $this->textPlain;
         return $this->textHtml;
+    }
+
+    public function getResponse() {
+        return ResponseFactory::detect($this);
+    }
+
+    public function isReply() {
+        return strpos(strtolower($this->subject), 're:') === 0;
     }
 }

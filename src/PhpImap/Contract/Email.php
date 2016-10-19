@@ -4,7 +4,7 @@ namespace PhpImap\Contract;
 
 use PhpImap\Email\IncomingMailAttachment;
 
-interface EmailInterface {
+interface Email {
 
     public function addAttachment(IncomingMailAttachment $attachment);
 
@@ -38,6 +38,10 @@ interface EmailInterface {
 
     public function concatTextHtml($text);
 
+    public function getTextHtml();
+
+    public function getTextPlain();
+
     public function addCc($index, $value);
 
     public function addBcc($index, $value);
@@ -55,4 +59,12 @@ interface EmailInterface {
     public function getDate();
 
     public function getBody();
+
+    public function getHeaders();
+
+    public function getHeadersRaw();
+
+    public function isReply();
+
+    public function getResponse();
 }
