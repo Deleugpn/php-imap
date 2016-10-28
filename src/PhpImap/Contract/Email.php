@@ -54,6 +54,10 @@ interface Email {
 
     public function getFromAddress();
 
+    public function getTo();
+
+    public function getToString();
+
     public function getSubject();
 
     public function getDate();

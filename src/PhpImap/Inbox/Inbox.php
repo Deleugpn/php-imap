@@ -517,14 +517,67 @@ class Inbox implements InboxContract {
     }
 
     /**
-     * Get mail data
-     *
-     * @param $mailId
-     * @param bool $markAsSeen
-     * @return IncomingMail
+     * {@inheritdoc}
      */
     public function getMail($mailId, $markAsSeen = true) {
+        $headersRaw = imap_fetchheader($this->getImapStream(), $mailId, FT_UID);
+        $head = imap_rfc822_parse_headers($headersRaw);
 
+        $email = new IncomingMail();
+        $email->setHeadersRaw($headersRaw);
+        $email->setHeaders($head);
+        $email->setId($mailId);
+        $email->setDate(date('Y-m-d H:i:s', isset($head->date) ? strtotime(preg_replace('/\(.*?\)/', '', $head->date)) : time()));
+        $email->setSubject(isset($head->subject) ? $this->decodeMimeStr($head->subject, $this->getServerEncoding()) : null);
+        $email->setFromName(isset($head->from[0]->personal) ? $this->decodeMimeStr($head->from[0]->personal, $this->getServerEncoding()) : null);
+        $email->setFromAddress(strtolower($head->from[0]->mailbox . '@' . $head->from[0]->host));
+
+        if (isset($head->to)) {
+            $toStrings = array();
+            foreach ($head->to as $to) {
+                if (!empty($to->mailbox) && !empty($to->host)) {
+                    $toEmail = strtolower($to->mailbox . '@' . $to->host);
+                    $toName = isset($to->personal) ? $this->decodeMimeStr($to->personal, $this->getServerEncoding()) : null;
+                    $toStrings[] = $toName ? "$toName <$toEmail>" : $toEmail;
+                    $email->appendTo($toEmail, $toName);
+                }
+            }
+            $email->setToString(implode(', ', $toStrings));
+        }
+
+        if (isset($head->cc)) {
+            foreach ($head->cc as $cc) {
+                $email->addCc(strtolower($cc->mailbox . '@' . $cc->host), isset($cc->personal) ? $this->decodeMimeStr($cc->personal, $this->getServerEncoding()) : null);
+            }
+        }
+
+        if (isset($head->bcc)) {
+            foreach ($head->bcc as $bcc) {
+                $email->addBcc(strtolower($bcc->mailbox . '@' . $bcc->host), isset($bcc->personal) ? $this->decodeMimeStr($bcc->personal, $this->getServerEncoding()) : null);
+            }
+        }
+
+        if (isset($head->reply_to)) {
+            foreach ($head->reply_to as $replyTo) {
+                $email->addReplyTo(strtolower($replyTo->mailbox . '@' . $replyTo->host), isset($replyTo->personal) ? $this->decodeMimeStr($replyTo->personal, $this->getServerEncoding()) : null);
+            }
+        }
+
+        if (isset($head->message_id)) {
+            $email->setMessageId($head->message_id);
+        }
+
+        $mailStructure = imap_fetchstructure($this->getImapStream(), $mailId, FT_UID);
+
+        if (empty($mailStructure->parts)) {
+            $this->initMailPart($email, $mailStructure, 0, $markAsSeen);
+        } else {
+            foreach ($mailStructure->parts as $partNum => $partStructure) {
+                $this->initMailPart($email, $partStructure, $partNum + 1, $markAsSeen);
+            }
+        }
+
+        return $email;
     }
 
     public function initMailPart(Email $mail, $partStructure, $partNum, $markAsSeen = true) {

@@ -62,6 +62,13 @@ interface Inbox {
 
     public function getRawMail($msgId, $markAsSeen = true);
 
+    /**
+     * Get Email Object
+     * 
+     * @param $mailId
+     * @param bool $markAsSeen
+     * @return Email
+     */
     public function getMail($mailId, $markAsSeen = true);
 
     public function isUrlEncoded($string);
