@@ -17,8 +17,7 @@ class ImapFactory implements ContractImapFactory {
      * @return Email
      */
     public function parseEmailFromInbox(Inbox $inbox, Email $email, $mailId, $markAsSeen = true) {
-        $class = get_class($email);
-        $email = new $class;
+        $email = $this->makeNewEmailInstance($email);
 
         $headersRaw = imap_fetchheader($inbox->getImapStream(), $mailId, FT_UID);
         $head = imap_rfc822_parse_headers($headersRaw);
@@ -77,7 +76,17 @@ class ImapFactory implements ContractImapFactory {
         }
 
         return $email;
-    }    
+    }
+
+    /**
+     * @param Email $email
+     * @return Email
+     */
+    protected function makeNewEmailInstance(Email $email) {
+        $class = get_class($email);
+        $email = new $class;
+        return $email;
+    }
 
 
 }
