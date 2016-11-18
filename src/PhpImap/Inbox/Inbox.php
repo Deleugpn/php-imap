@@ -4,6 +4,9 @@ use PhpImap\Contract\Email;
 use PhpImap\Contract\Inbox as InboxContract;
 use PhpImap\Email\IncomingMail;
 use PhpImap\Email\IncomingMailAttachment;
+use PhpImap\Exception\BadMessageNumberException;
+use PhpImap\Exception\Exception;
+use PhpImap\Exception\ImapException;
 use stdClass;
 
 /**
@@ -149,7 +152,7 @@ class Inbox implements InboxContract {
         $this->imapPath = $imapPath;
         $imapStream = @imap_reopen($this->getImapStream(), $imapPath);
         if (!$imapStream) {
-            throw new Exception("Couldn't switch  mailbox: " . imap_last_error());
+            throw new ImapException("Couldn't switch  mailbox: " . imap_last_error());
         }
     }
 
@@ -158,7 +161,7 @@ class Inbox implements InboxContract {
         if (!$imapStream) {
             $lastError = imap_last_error();
             imap_errors();
-            throw new Exception('Connection error: ' . $lastError);
+            throw new ImapException('Connection error: ' . $lastError);
         }
         return $imapStream;
     }
@@ -520,7 +523,7 @@ class Inbox implements InboxContract {
      * {@inheritdoc}
      */
     public function getMail($mailId, $markAsSeen = true) {
-        $headersRaw = imap_fetchheader($this->getImapStream(), $mailId, FT_UID);
+        $headersRaw = $this->imapFetchHeaders($mailId);
         $head = imap_rfc822_parse_headers($headersRaw);
 
         $email = new IncomingMail();
@@ -742,8 +745,20 @@ class Inbox implements InboxContract {
             $this->imapPath = imap_utf7_encode($imapPath);
         }
     }
-}
 
-class Exception extends \Exception {
-
+    /**
+     * @param $mailId
+     * @return string
+     * @throws BadMessageNumberException
+     */
+    private function imapFetchHeaders($mailId) {
+        set_error_handler(function ($errno, $errstr, $errfile, $errline, array $errcontext) {
+            if ($errstr == 'imap_fetchheader(): Bad message number')
+                throw new BadMessageNumberException('Bad message number');
+            throw new Exception($errstr);
+        });
+        $headerRaw = imap_fetchheader($this->getImapStream(), $mailId, FT_UID);
+        restore_error_handler();
+        return $headerRaw;
+    }
 }
