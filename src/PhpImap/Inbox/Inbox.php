@@ -562,7 +562,8 @@ class Inbox implements InboxContract {
 
         if (isset($head->reply_to)) {
             foreach ($head->reply_to as $replyTo) {
-                $email->addReplyTo(strtolower($replyTo->mailbox . '@' . $replyTo->host), isset($replyTo->personal) ? $this->decodeMimeStr($replyTo->personal, $this->getServerEncoding()) : null);
+                if (isset($replyTo->mailbox) && isset($replyTo->host))
+                    $email->addReplyTo(strtolower($replyTo->mailbox . '@' . $replyTo->host), isset($replyTo->personal) ? $this->decodeMimeStr($replyTo->personal, $this->getServerEncoding()) : null);
             }
         }
 

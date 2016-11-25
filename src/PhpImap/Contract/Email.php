@@ -32,6 +32,8 @@ interface Email {
 
     public function setMessageId($messageId);
 
+    public function getMessageId();
+
     public function getId();
 
     public function concatTextPlain($text);
