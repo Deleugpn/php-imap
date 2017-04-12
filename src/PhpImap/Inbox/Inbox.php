@@ -532,8 +532,9 @@ class Inbox implements InboxContract {
         $email->setId($mailId);
         $email->setDate(date('Y-m-d H:i:s', isset($head->date) ? strtotime(preg_replace('/\(.*?\)/', '', $head->date)) : time()));
         $email->setSubject(isset($head->subject) ? $this->decodeMimeStr($head->subject, $this->getServerEncoding()) : null);
-        $email->setFromName(isset($head->from[0]->personal) ? $this->decodeMimeStr($head->from[0]->personal, $this->getServerEncoding()) : null);
         $email->setFromAddress(isset($head->from) ? strtolower($head->from[0]->mailbox . '@' . $head->from[0]->host) : null);
+        if ($email->getFromAddress())
+            $email->setFromName(isset($head->from[0]->personal) ? $this->decodeMimeStr($head->from[0]->personal, $this->getServerEncoding()) : null);
 
         if (isset($head->to)) {
             $toStrings = array();
